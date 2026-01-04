@@ -1,5 +1,3 @@
-# CDLM-Lead-Management
-Centralized Digital Lead Management System
 # Centralized Digital Lead Management System (CDLM)
 
 **Version:** 17 | **Status:** Production Ready | **Last Updated:** January 2026
