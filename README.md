@@ -1,7 +1,5 @@
 # Centralized Digital Lead Management System (CDLM)
 
-**Version:** 17 | **Status:** Production Ready | **Last Updated:** January 2026
-
 ## 📋 Overview
 
 **CDLM** is a comprehensive lead management and data cleansing system designed for sales teams and business development departments. It provides automated data cleaning, intelligent lead assignment, user authentication, and real-time lead tracking capabilities.
