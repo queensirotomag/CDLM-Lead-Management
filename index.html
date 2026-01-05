@@ -1,15 +1,11 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>Centralized Digital Lead Management</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <!-- Firebase (compat builds for v8-style API) -->
-  https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js</script>
-  https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js</script>
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js"></script>
   <style>
     :root {
       --bg-body: #050816;
@@ -519,7 +515,6 @@
   </style>
 </head>
 <body>
-  <!-- Login -->
   <div class="login-page" id="loginPage">
     <div class="login-container">
       <div class="login-header">
@@ -528,18 +523,20 @@
       <form class="login-form" onsubmit="handleLogin(event)">
         <div class="form-group">
           <label>Username</label>
-          <input type="text" id="loginUsername" placeholder="Enter username" required />
+          <input type="text" id="loginUsername" placeholder="Enter username" required>
         </div>
         <div class="form-group">
           <label>Password</label>
-          <input type="password" id="loginPassword" placeholder="Enter password" required />
+          <input type="password" id="loginPassword" placeholder="Enter password" required>
         </div>
         <button type="submit" class="login-btn">Sign In</button>
       </form>
+      <div class="login-footer">
+        Demo: admin/admin123 | onkar/onkar123 | goraksha/goraksha123 | sachin/sachin123 | rajesh/rajesh123
+      </div>
     </div>
   </div>
 
-  <!-- App Shell -->
   <div class="app-shell hidden" id="appShell">
     <header class="header">
       <div class="brand">
@@ -582,7 +579,7 @@
             <label for="csvFile" class="file-input-label">📁 Select CSV</label>
           </div>
           <button id="processBtn" class="btn btn-primary" onclick="uploadAndParseCSV()" disabled>
-            📋 Parse &amp; Map
+            📋 Parse & Map
           </button>
           <button class="btn btn-secondary" onclick="clearImport()">🔄 Reset</button>
         </div>
@@ -611,8 +608,8 @@
         <div class="page-header">
           <h1 class="page-title">CDLM Dashboard</h1>
           <p class="page-subtitle">
-            Upload CSV / Google Sheet → Auto Clean &amp; Segment → Manage &amp; Track
-          </p>
+            Upload CSV / Google Sheet → Auto Clean & Segment → Manage & Track
+         </p>
         </div>
 
         <div id="messageContainer"></div>
@@ -727,7 +724,6 @@
     </main>
   </div>
 
-  <!-- Mapping Modal -->
   <div class="mapping-modal" id="mappingModal">
     <div class="mapping-modal-content">
       <div class="mapping-modal-header">
@@ -739,14 +735,16 @@
       </p>
       <div id="mappingFieldsContainer"></div>
       <div class="mapping-actions">
-        <button class="btn btn-primary" onclick="confirmAndCleanData()">✅ Confirm &amp; Process</button>
+        <button class="btn btn-primary" onclick="confirmAndCleanData()">✅ Confirm & Process</button>
         <button class="btn btn-secondary" onclick="closeMappingModal()">Cancel</button>
       </div>
     </div>
   </div>
 
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js"></script>
+
   <script>
-    // --- Users & Config ---
     const USERS = {
       'admin':   { password: 'admin123',   displayName: 'Admin',   isAdmin: true  },
       'onkar':   { password: 'onkar123',   displayName: 'Onkar',   isAdmin: false },
@@ -814,7 +812,6 @@
       'reference':   ['reference','referral','ref by','referred','reference name','who referred']
     };
 
-    // --- Column Mapping ---
     function autoDetectColumns(headers) {
       columnMapping = {};
       Object.keys(dbFieldPatterns).forEach(dbField => {
@@ -866,7 +863,6 @@
       document.getElementById('mappingModal').classList.remove('show');
     }
 
-    // --- Firebase ---
     function initFirebase() {
       const apiKey = document.getElementById('firebaseKey').value.trim();
       const projectId = document.getElementById('firebaseProject').value.trim();
@@ -891,7 +887,6 @@
       }
     }
 
-    // --- Auth & App lifecycle ---
     function handleLogin(e) {
       e.preventDefault();
       const u = document.getElementById('loginUsername').value.trim();
@@ -922,22 +917,14 @@
       document.getElementById('appShell').classList.remove('hidden');
       document.getElementById('headerUsername').textContent = currentUser.displayName;
       document.getElementById('headerUserRole').textContent = currentUser.isAdmin ? 'Admin' : 'Team';
-
-      loadData();                 // localStorage → allLeads
+      loadData();
       renderTable(allLeads);
       updateMetrics();
       updateAssignedPeopleSection();
       currentFilteredLeads = [...allLeads];
-
-      // 🔸 If localStorage is empty, auto-load repo CSV
-      if (allLeads.length === 0) {
-        autoLoadRepoCSV();
-      }
-
       addDebugLog('✅ Dashboard loaded', 'success');
     }
 
-    // --- Import / Parse / Clean ---
     function handleFileSelect(e) {
       if (e.target.files[0]) {
         addDebugLog('📁 File: ' + e.target.files[0].name, 'info');
@@ -1185,7 +1172,6 @@
       clearImport();
     }
 
-    // --- Persistence ---
     function addLeadsToDatabase(leads) {
       leads.forEach((l, idx) => {
         const leadId = 'LEAD-' + String(allLeads.length + idx + 1).padStart(4, '0');
@@ -1213,7 +1199,6 @@
       }
     }
 
-    // --- Firestore Sync ---
     async function syncToFirestore() {
       if (!fbInitialized || !db) {
         showMessage('Connect Firebase first', 'error');
@@ -1244,7 +1229,6 @@
       }
     }
 
-    // --- Table & Filters ---
     function renderTable(leads) {
       const tb = document.getElementById('tableBody');
       if (!leads.length) {
@@ -1349,13 +1333,12 @@
     }
 
     function updateMetrics() {
-      const assigned = allLeads.filter(l => (l.assign_to || '').trim() !== '').length;
-      document.getElementById('kpiTotal').textContent    = allLeads.length;
-      document.getElementById('kpiAssigned').textContent = assigned;
+      document.getElementById('kpiTotal').textContent = allLeads.length;
+      document.getElementById('kpiAssigned').textContent = allLeads.length;
       document.getElementById('kpiQualified').textContent =
         allLeads.filter(l => l.status === 'Qualified' || l.status === 'Converted').length;
       document.getElementById('kpiCampaign').textContent =
-        allLeads.filter(l => (l.campaign_enabled || '').toLowerCase() === 'yes').length;
+        allLeads.filter(l => l.campaign_enabled === 'Yes').length;
       document.getElementById('sidebarTotalLeads').textContent = allLeads.length;
     }
 
@@ -1385,7 +1368,6 @@
       cont.innerHTML = html || '<div style="font-size:11px;color:var(--text-soft);text-align:center;">No assignments</div>';
     }
 
-    // --- Export ---
     function exportCurrentView() {
       const data = currentFilteredLeads && currentFilteredLeads.length ? currentFilteredLeads : allLeads;
       if (!data.length) {
@@ -1433,34 +1415,6 @@
       showMessage('Exported ' + data.length + ' rows!', 'success');
     }
 
-    // --- Auto-load repo CSV on first login (if storage empty) ---
-    async function autoLoadRepoCSV() {
-      try {
-        addDebugLog('🔎 Trying to auto-load index.csv', 'info');
-        const res = await fetch('index.csv', { cache: 'no-store' });
-        if (!res.ok) { addDebugLog('⚠️ index.csv not found (HTTP ' + res.status + ')', 'warning'); return; }
-
-        const text = await res.text();
-        rawCSVData = parseCSV(text);
-        if (!rawCSVData.length) { addDebugLog('⚠️ CSV is empty', 'warning'); return; }
-
-        // headers from parsed first row (already lowercased by parseCSV)
-        fileHeaders = Object.keys(rawCSVData[0]);
-
-        // auto map & process
-        autoDetectColumns(fileHeaders);
-        addDebugLog('✅ Auto-detected mapping for repo CSV', 'success');
-
-        // clean → assign → render (mapping modal skip)
-        processAndCleanData();
-
-        showMessage('✅ Auto-loaded index.csv from repository', 'success');
-      } catch (e) {
-        addDebugLog('❌ Auto-load error: ' + e.message, 'error');
-      }
-    }
-
-    // --- Utils ---
     function escapeCSV(val) {
       const v = String(val);
       if (/[",\n]/.test(v)) return '"' + v.replace(/"/g, '""') + '"';
@@ -1500,4 +1454,3 @@
   </script>
 </body>
 </html>
-``
