@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <title>Centralized Digital Lead Management</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js</script>
+  <script/www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js</script>
   <style>
     :root {
       --bg-body: #050816;
@@ -910,18 +910,26 @@
       document.getElementById('loginPage').style.display = 'flex';
     }
 
-    function showDashboard() {
-      document.getElementById('loginPage').style.display = 'none';
-      document.getElementById('appShell').classList.remove('hidden');
-      document.getElementById('headerUsername').textContent = currentUser.displayName;
-      document.getElementById('headerUserRole').textContent = currentUser.isAdmin ? 'Admin' : 'Team';
-      loadData();
-      renderTable(allLeads);
-      updateMetrics();
-      updateAssignedPeopleSection();
-      currentFilteredLeads = [...allLeads];
-      addDebugLog('✅ Dashboard loaded', 'success');
-    }
+    
+function showDashboard() {
+  document.getElementById('loginPage').style.display = 'none';
+  document.getElementById('appShell').classList.remove('hidden');
+  document.getElementById('headerUsername').textContent = currentUser.displayName;
+  document.getElementById('headerUserRole').textContent = currentUser.isAdmin ? 'Admin' : 'Team';
+
+  loadData();                 // localStorage → allLeads
+  renderTable(allLeads);
+  updateMetrics();
+  updateAssignedPeopleSection();
+  currentFilteredLeads = [...allLeads];
+
++ // 🔸 अगर localStorage खाली है तो repo CSV auto-load करो
++ if (allLeads.length === 0) {
++   autoLoadRepoCSV();
++ }
+
+  addDebugLog('✅ Dashboard loaded', 'success');
+}
 
     function handleFileSelect(e) {
       if (e.target.files[0]) {
@@ -1330,15 +1338,16 @@
       renderTable(allLeads);
     }
 
-    function updateMetrics() {
-      document.getElementById('kpiTotal').textContent = allLeads.length;
-      document.getElementById('kpiAssigned').textContent = allLeads.length;
-      document.getElementById('kpiQualified').textContent =
-        allLeads.filter(l => l.status === 'Qualified' || l.status === 'Converted').length;
-      document.getElementById('kpiCampaign').textContent =
-        allLeads.filter(l => l.campaign_enabled === 'Yes').length;
-      document.getElementById('sidebarTotalLeads').textContent = allLeads.length;
-    }
+  function updateMetrics() {
+  const assigned = allLeads.filter(l => (l.assign_to || '').trim() !== '').length;
+  document.getElementById('kpiTotal').textContent    = allLeads.length;
+  document.getElementById('kpiAssigned').textContent = assigned;
+  document.getElementById('kpiQualified').textContent =
+    allLeads.filter(l => l.status === 'Qualified' || l.status === 'Converted').length;
+  document.getElementById('kpiCampaign').textContent =
+    allLeads.filter(l => (l.campaign_enabled || '').toLowerCase() === 'yes').length;
+  document.getElementById('sidebarTotalLeads').textContent = allLeads.length;
+}
 
     function updateAssignedPeopleSection() {
       const cont = document.getElementById('assignedPeopleContainer');
@@ -1412,6 +1421,32 @@
       addDebugLog('⬇ Exported ' + data.length + ' rows', 'success');
       showMessage('Exported ' + data.length + ' rows!', 'success');
     }
+
+async function autoLoadRepoCSV() {
+  try {
+    addDebugLog('🔎 Trying to auto-load index.csv', 'info');
+    const res = await fetch('index.csv', { cache: 'no-store' });
+    if (!res.ok) { addDebugLog('⚠️ index.csv not found (HTTP ' + res.status + ')', 'warning'); return; }
+
+    const text = await res.text();
+    rawCSVData = parseCSV(text);
+    if (!rawCSVData.length) { addDebugLog('⚠️ CSV is empty', 'warning'); return; }
+
+    // headers from parsed first row (already lowercased by parseCSV)
+    fileHeaders = Object.keys(rawCSVData[0]);
+
+    // auto map & process
+    autoDetectColumns(fileHeaders);
+    addDebugLog('✅ Auto-detected mapping for repo CSV', 'success');
+
+    // clean → assign → render (mapping modal skip)
+    processAndCleanData();
+
+    showMessage('✅ Auto-loaded index.csv from repository', 'success');
+  } catch (e) {
+    addDebugLog('❌ Auto-load error: ' + e.message, 'error');
+  }
+}
 
     function escapeCSV(val) {
       const v = String(val);
