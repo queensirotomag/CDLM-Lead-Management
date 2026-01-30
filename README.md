@@ -1,50 +1,34 @@
-# Centralized Digital Lead Management System (CDLM)
 
-## 📋 Overview
+# CDLM – Centralized Digital Lead Management (Ready-to-Deploy)
 
-**CDLM** is a comprehensive lead management and data cleansing system designed for sales teams and business development departments. It provides automated data cleaning, intelligent lead assignment, user authentication, and real-time lead tracking capabilities.
+This package contains a ready-to-deploy Firebase Hosting app with Firestore integration (Sync, Pull, Live updates).
 
----
+## Files
+- `index.html` – UI shell
+- `styles.css` – styles
+- `firebase.js` – Firebase config + init (compat SDK)
+- `app.js` – App logic (CSV → Clean → UI → Firestore CRUD)
+- `sample.csv` – sample data
+- `firebase.json`, `.firebaserc` – Firebase Hosting config
 
-## ✨ Key Features
+## Quick Start
+```bash
+npm i -g firebase-tools
+firebase login
+firebase deploy --only hosting
+```
 
- 🔐 **User Authentication**
-- Multi-user login system with role-based access
-- Admin and Team member roles
-- Secure session management
-- Password-protected access
+If you see a project mismatch, set the default project:
+```bash
+firebase use cdlm-lead-management
+```
 
- 🧹 **Advanced Data Cleansing**
-- **Email Domain Fixing**: Auto-corrects typos (gmail.co → gmail.com)
-- **Phone Number Formatting**: Standardizes to +91-XXXXX-XXXXX format
-- **Duplicate Detection**: Blocks duplicate phone numbers automatically
-- **Reference Cleaning**: Converts #NA, #N/A, NULL to "-"
-- **Smart Validation**: Ensures name and phone are present
+## Local Test
+```bash
+firebase emulators:start --only hosting
+# open http://localhost:5000
+```
 
- 📊 **Lead Management**
-- Upload leads via CSV with auto-detection of columns
-- Automatic product-based team assignment
-- Real-time lead status tracking
-- Lead categorization and follow-up management
-- Campaign tracking
-
- 👥 **Team Assignment**
-- Auto-assign leads by product type:
-  - Solar Pump → Onkar
-  - Submersible Pump → Goraksha
-  - Energy Storage → Sachin
-  - Solar Rooftop → Rajesh
-- Manual reassignment capability
-- Team member performance dashboard
-
- 📈 **Analytics & Reporting**
-- Real-time KPI metrics (Total, Assigned, Qualified, Campaign)
-- Team member assignment summary
-- Lead status distribution
-- Activity logs with detailed cleansing stats
-
- 💾 **Data Storage**
-- Local browser storage (localStorage)
-- Firebase Firestore integration ready
-- Automatic data backup
-- Data export to CSV
+## Notes
+- Ensure Firestore is enabled in your project.
+- For production, secure your Firestore security rules.
