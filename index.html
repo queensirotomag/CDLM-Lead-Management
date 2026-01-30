@@ -4,8 +4,11 @@
   <meta charset="UTF-8">
   <title>Centralized Digital Lead Management</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Firebase compat SDKs (namespaced style) -->
   <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js"></script>
+
   <style>
     :root {
       --bg-body: #050816;
@@ -531,7 +534,6 @@
         </div>
         <button type="submit" class="login-btn">Sign In</button>
       </form>
-      </div>
     </div>
   </div>
 
@@ -563,10 +565,7 @@
 
         <div class="sidebar-section">
           <div class="sidebar-title">Firestore Setup</div>
-          <input type="password" id="firebaseKey" placeholder="API Key"
-                 style="display:block;padding:8px;background:#020617;border:1px solid rgba(55,65,81,0.9);border-radius:4px;color:var(--text-main);font-size:11px;width:100%;margin-bottom:6px;">
-          <input type="text" id="firebaseProject" placeholder="Project ID"
-                 style="display:block;padding:8px;background:#020617;border:1px solid rgba(55,65,81,0.9);border-radius:4px;color:var(--text-main);font-size:11px;width:100%;margin-bottom:6px;">
+          <!-- Inputs now optional. Kept for UI. Button just calls initFirebase() -->
           <button class="btn btn-primary" onclick="initFirebase()" style="margin-bottom:6px;">🔥 Connect Firebase</button>
         </div>
 
@@ -607,7 +606,7 @@
           <h1 class="page-title">CDLM Dashboard</h1>
           <p class="page-subtitle">
             Upload CSV / Google Sheet → Auto Clean & Segment → Manage & Track
-         </p>
+          </p>
         </div>
 
         <div id="messageContainer"></div>
@@ -635,9 +634,7 @@
           <div class="card-header">
             <div>
               <div class="card-title">📊 All Leads</div>
-              <div class="card-subtitle">
-                Centralized view
-              </div>
+              <div class="card-subtitle">Centralized view</div>
             </div>
           </div>
 
@@ -739,10 +736,9 @@
     </div>
   </div>
 
-  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js"></script>
-
+  <!-- App Logic -->
   <script>
+    /* ========= App State & Constants ========= */
     const USERS = {
       'admin':   { password: 'admin123',   displayName: 'Admin',   isAdmin: true  },
       'onkar':   { password: 'onkar123',   displayName: 'Onkar',   isAdmin: false },
@@ -810,6 +806,33 @@
       'reference':   ['reference','referral','ref by','referred','reference name','who referred']
     };
 
+    /* ========= Firebase Config (Hardcoded) ========= */
+    const firebaseConfig = {
+      apiKey: "AIzaSyAljqpdkTFXb8VMa-78wLB1IBJVj4ZsdyQ",
+      authDomain: "cdlm-lead-management.firebaseapp.com",
+      projectId: "cdlm-lead-management",
+      storageBucket: "cdlm-lead-management.appspot.com",
+      messagingSenderId: "141867154532",
+      appId: "1:141867154532:web:d2553d1808c6ce6b233371",
+      measurementId: "G-HWFEMQBXZS"
+    };
+
+    function initFirebase() {
+      try {
+        if (!firebase.apps || firebase.apps.length === 0) {
+          firebase.initializeApp(firebaseConfig);
+        }
+        db = firebase.firestore();
+        fbInitialized = true;
+        addDebugLog('✅ Firebase Connected (hardcoded config)', 'success');
+        showMessage('Firebase Connected!', 'success');
+      } catch (err) {
+        addDebugLog('❌ ' + err.message, 'error');
+        showMessage('Error: ' + err.message, 'error');
+      }
+    }
+
+    /* ========= CSV Mapping Helpers ========= */
     function autoDetectColumns(headers) {
       columnMapping = {};
       Object.keys(dbFieldPatterns).forEach(dbField => {
@@ -856,35 +879,11 @@
       renderMappingModal();
       document.getElementById('mappingModal').classList.add('show');
     }
-
     function closeMappingModal() {
       document.getElementById('mappingModal').classList.remove('show');
     }
 
-    function initFirebase() {
-      const apiKey = document.getElementById('firebaseKey').value.trim();
-      const projectId = document.getElementById('firebaseProject').value.trim();
-      if (!apiKey || !projectId) {
-        showMessage('Enter API Key & Project ID', 'error');
-        return;
-      }
-      try {
-        const config = {
-          apiKey, projectId,
-          storageBucket: projectId + '.appspot.com',
-          databaseURL: 'https://' + projectId + '.firebaseio.com'
-        };
-        firebase.initializeApp(config);
-        db = firebase.firestore();
-        fbInitialized = true;
-        addDebugLog('✅ Firebase Connected', 'success');
-        showMessage('Firebase Connected!', 'success');
-      } catch (err) {
-        addDebugLog('❌ ' + err.message, 'error');
-        showMessage('Error: ' + err.message, 'error');
-      }
-    }
-
+    /* ========= Auth (simple local) ========= */
     function handleLogin(e) {
       e.preventDefault();
       const u = document.getElementById('loginUsername').value.trim();
@@ -923,13 +922,13 @@
       addDebugLog('✅ Dashboard loaded', 'success');
     }
 
+    /* ========= File Import & CSV Parsing ========= */
     function handleFileSelect(e) {
       if (e.target.files[0]) {
         addDebugLog('📁 File: ' + e.target.files[0].name, 'info');
         document.getElementById('processBtn').disabled = false;
       }
     }
-
     function clearImport() {
       document.getElementById('csvFile').value = '';
       document.getElementById('processBtn').disabled = true;
@@ -1004,6 +1003,7 @@
       processAndCleanData();
     }
 
+    /* ========= Cleaning Helpers ========= */
     function levenshtein(a, b) {
       const m = a.length, n = b.length;
       const dp = Array.from({ length: m + 1 }, () => Array(n + 1).fill(0));
@@ -1170,6 +1170,7 @@
       clearImport();
     }
 
+    /* ========= Local DB (localStorage) ========= */
     function addLeadsToDatabase(leads) {
       leads.forEach((l, idx) => {
         const leadId = 'LEAD-' + String(allLeads.length + idx + 1).padStart(4, '0');
@@ -1197,6 +1198,7 @@
       }
     }
 
+    /* ========= Firestore Sync ========= */
     async function syncToFirestore() {
       if (!fbInitialized || !db) {
         showMessage('Connect Firebase first', 'error');
@@ -1227,6 +1229,7 @@
       }
     }
 
+    /* ========= UI Rendering & Filters ========= */
     function renderTable(leads) {
       const tb = document.getElementById('tableBody');
       if (!leads.length) {
@@ -1419,6 +1422,7 @@
       return v;
     }
 
+    /* ========= Utilities ========= */
     function addDebugLog(msg, type = 'info') {
       const box = document.getElementById('debugLog');
       const div = document.createElement('div');
@@ -1442,7 +1446,12 @@
       document.querySelector('.sidebar').classList.toggle('open');
     }
 
+    /* ========= Startup ========= */
     document.addEventListener('DOMContentLoaded', () => {
+      // Auto connect Firebase
+      try { initFirebase(); } catch(e) {}
+
+      // Auto login if saved
       const savedUser = localStorage.getItem('cdlm_current_user');
       if (savedUser) {
         currentUser = JSON.parse(savedUser);
