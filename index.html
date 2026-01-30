@@ -1,16 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>Centralized Digital Lead Management</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- ✅ Firebase compat SDKs (global `firebase.*` API) -->
-  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+  <!-- Firebase compat SDKs (namespaced style) -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js"></script>
 
   <style>
-    :root{
+    :root {
       --bg-body:#050816; --bg-header:#050816; --bg-sidebar:#0b1020; --bg-card:#0f172a;
       --text-main:#f9fafb; --text-muted:#9ca3af; --text-soft:#6b7280;
       --accent:#6366f1; --accent-soft:rgba(99,102,241,.15); --accent-strong:#4f46e5;
@@ -19,8 +19,6 @@
     *{margin:0;padding:0;box-sizing:border-box}
     html,body{width:100%;height:100%;overflow:hidden}
     body{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:radial-gradient(circle at top,#111827 0,#020617 45%,#020617 100%);color:var(--text-main);font-size:13px}
-
-    /* ---- Login ---- */
     .login-page{width:100%;height:100vh;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at top,#111827 0,#020617 45%,#020617 100%)}
     .login-container{width:100%;max-width:420px;padding:40px 32px 32px;background:radial-gradient(circle at top left,#111827,#020617 60%);border-radius:16px;border:1px solid rgba(31,41,55,.9);box-shadow:0 20px 60px rgba(0,0,0,.8)}
     .login-header{text-align:center;margin-bottom:28px}
@@ -32,14 +30,12 @@
     .form-group input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(99,102,241,.2)}
     .login-btn{margin-top:6px;padding:11px;width:100%;background:linear-gradient(135deg,var(--accent-strong),#22c55e);border:none;border-radius:8px;color:#020617;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s}
     .login-btn:hover{transform:translateY(-1px);box-shadow:0 10px 30px rgba(99,102,241,.4)}
-
-    /* ---- App ---- */
     .app-shell{display:grid;grid-template-rows:60px 1fr;width:100%;height:100vh;overflow:hidden}
     .app-shell.hidden{display:none}
     .app-main{display:grid;grid-template-columns:280px 1fr;width:100%;height:100%;overflow:hidden}
-    .header{background:rgba(5,8,22,.95);backdrop-filter:blur(12px);border-bottom:1px solid rgba(55,65,81,.8);padding:0 24px;display:flex;align-items:center;justify-content:space-between}
+    .header{background:rgba(5,8,22,.95);backdrop-filter:blur(12px);border-bottom:1px solid rgba(55,65,81,.8);padding:0 24px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
     .brand{display:flex;align-items:center;gap:10px}
-    .brand-logo{width:36px;height:36px;border-radius:8px;background:conic-gradient(from 210deg,#4f46e5,#22c55e,#f59e0b,#4f46e5);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:18px;color:#020617}
+    .brand-logo{width:36px;height:36px;border-radius:8px;background:conic-gradient(from 210deg,#4f46e5,#22c55e,#f59e0b,#4f46e5);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:18px;color:#020617;flex-shrink:0}
     .brand-text{font-weight:600;font-size:16px}
     .brand-sub{font-size:11px;color:var(--text-soft)}
     .header-right{display:flex;gap:12px;align-items:center}
@@ -48,72 +44,92 @@
     .user-role{color:var(--text-soft);font-size:10px}
     .header-btn{padding:7px 11px;background:rgba(17,24,39,.9);border:1px solid rgba(55,65,81,.9);border-radius:6px;color:var(--text-main);cursor:pointer;font-size:11px;display:inline-flex;align-items:center;gap:6px;transition:all .2s}
     .header-btn:hover{background:rgba(55,65,81,.8)}
-
-    .sidebar{padding:16px 12px;background:radial-gradient(circle at top left,#020617,#020617 55%,#020617 100%);border-right:1px solid rgba(31,41,55,.85);overflow-y:auto;overflow-x:hidden;display:flex;flex-direction:column;gap:20px}
+    .sidebar{padding:16px 12px;background:radial-gradient(circle at top left,#020617,#020617 55%,#020617 100%);border-right:1px solid rgba(31,41,55,.85);overflow-y:auto;overflow-x:hidden;flex-shrink:0;display:flex;flex-direction:column;gap:20px}
+    .sidebar::-webkit-scrollbar{width:6px}
+    .sidebar::-webkit-scrollbar-thumb{background:rgba(55,65,81,.5);border-radius:3px}
     .sidebar-title{font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--text-soft);margin-bottom:10px;font-weight:600}
+    .nav-item{display:flex;align-items:center;gap:8px;padding:10px;border-radius:6px;font-size:12px;color:var(--text-muted);cursor:pointer;transition:all .2s;margin-bottom:4px}
+    .nav-item:hover{background:rgba(55,65,81,.6);color:var(--text-main)}
+    .nav-item.active{background:var(--accent-soft);color:var(--accent);border:1px solid rgba(99,102,241,.7)}
     .file-input-wrapper input[type="file"]{display:none}
     .file-input-label{display:block;background:rgba(17,24,39,.8);color:var(--text-main);padding:10px;border-radius:6px;cursor:pointer;text-align:center;font-weight:600;border:1px solid rgba(55,65,81,.9);transition:all .2s;font-size:12px;margin-bottom:6px}
+    .file-input-label:hover{background:rgba(55,65,81,.8)}
     .btn{width:100%;padding:10px;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:all .2s;margin-bottom:6px}
     .btn-primary{background:linear-gradient(135deg,var(--accent-strong),#22c55e);color:#020617}
+    .btn-primary:disabled{opacity:.5;cursor:not-allowed}
     .btn-secondary{background:rgba(17,24,39,.8);color:var(--text-main);border:1px solid rgba(55,65,81,.9)}
     .sidebar-stats{font-size:11px;color:var(--text-muted);margin-bottom:8px;padding:8px;background:rgba(15,23,42,.6);border-radius:4px}
+    .sidebar-stats strong{color:var(--text-main);font-weight:700}
     .assigned-person{background:rgba(99,102,241,.15);padding:10px;border-radius:6px;margin-bottom:6px;border:1px solid rgba(99,102,241,.3)}
     .assigned-person-name{font-size:14px;font-weight:700;color:var(--accent);margin-bottom:6px}
+    .assigned-stats{font-size:11px;color:var(--text-muted);line-height:1.4}
     .stat-item{display:flex;justify-content:space-between;margin-bottom:2px}
-
-    .page{padding:16px;overflow:auto}
+    .divider{height:1px;background:rgba(31,41,55,.5);margin:0}
+    .mapping-modal{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.7);z-index:2000;align-items:center;justify-content:center}
+    .mapping-modal.show{display:flex}
+    .mapping-modal-content{background:radial-gradient(circle at top left,#111827,#020617 60%);border:1px solid rgba(31,41,55,.9);border-radius:12px;padding:20px;width:90%;max-width:700px;max-height:80vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.8)}
+    .mapping-modal-header{font-size:18px;font-weight:700;margin-bottom:20px;padding-bottom:12px;border-bottom:1px solid rgba(55,65,81,.5);display:flex;justify-content:space-between;align-items:center}
+    .mapping-modal-close{background:none;border:none;color:var(--text-muted);font-size:24px;cursor:pointer}
+    .mapping-item{background:rgba(15,23,42,.6);border:1px solid rgba(31,41,55,.5);border-radius:8px;padding:14px;margin-bottom:12px}
+    .mapping-label{font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;margin-bottom:6px}
+    .mapping-select{width:100%;padding:8px;background:#020617;border:1px solid rgba(55,65,81,.9);border-radius:6px;color:var(--text-main);font-size:12px}
+    .mapping-hint{font-size:10px;color:var(--text-soft);margin-top:4px;font-style:italic}
+    .mapping-detected{display:inline-block;background:var(--success);color:#020617;padding:2px 6px;border-radius:3px;font-size:10px;font-weight:600;margin-top:4px}
+    .page{padding:16px;overflow:auto;flex-shrink:1}
+    .page::-webkit-scrollbar{width:6px}
+    .page::-webkit-scrollbar-thumb{background:rgba(55,65,81,.5);border-radius:3px}
     .page-header{margin-bottom:16px}
     .page-title{font-size:24px;font-weight:600;margin-bottom:2px}
     .page-subtitle{font-size:12px;color:var(--text-soft)}
-
-    /* ==== Professional table wrapping ==== */
-    table{width:100%;border-collapse:separate;border-spacing:0;table-layout:fixed;font-size:12px}
-    thead th{position:sticky;top:0;z-index:2;background:#0F172A;border-bottom:1px solid rgba(148,163,184,.35);padding:10px 8px;color:var(--text-muted);white-space:nowrap}
-    tbody tr:nth-child(odd){background:rgba(15,23,42,.36)}
-    tbody tr:nth-child(even){background:rgba(2,6,23,.36)}
-    tbody td{padding:10px 8px;vertical-align:top;border-bottom:1px solid rgba(30,41,59,.45)}
-    td .cell, th .cell{display:block;overflow:hidden;overflow-wrap:anywhere;word-break:normal;hyphens:auto;line-height:1.25}
-    .cell--phone{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono",monospace;font-size:11px}
-    .cell--email{font-size:12px;word-break:break-word;hyphens:auto}
-    .cell--remarks{-webkit-line-clamp:2;-webkit-box-orient:vertical;display:-webkit-box;overflow:hidden}
-    td[title] .cell{cursor:help}
-    .badge{display:inline-block;padding:2px 6px;background:var(--accent-soft);color:var(--accent);border-radius:10px;font-size:10px;font-weight:600}
-
-    /* Column widths (tweak if needed) */
-    th:nth-child(1), td:nth-child(1){width:92px}
-    th:nth-child(2), td:nth-child(2){width:140px}
-    th:nth-child(3), td:nth-child(3){width:120px}
-    th:nth-child(4), td:nth-child(4){width:180px}
-    th:nth-child(5), td:nth-child(5){width:140px}
-    th:nth-child(6), td:nth-child(6){width:140px}
-    th:nth-child(7), td:nth-child(7){width:110px}
-    th:nth-child(8), td:nth-child(8){width:120px}
-    th:nth-child(9), td:nth-child(9){width:120px}
-    th:nth-child(10),td:nth-child(10){width:160px}
-    th:nth-child(11),td:nth-child(11){width:160px}
-    th:nth-child(12),td:nth-child(12){width:140px}
-    th:nth-child(13),td:nth-child(13){width:110px}
-    th:nth-child(14),td:nth-child(14){width:220px}
-    th:nth-child(15),td:nth-child(15){width:80px}
-
-    /* Responsive */
-    @media (max-width:768px){
-      .app-main{grid-template-columns:1fr}
-      .sidebar{position:fixed;left:-280px;width:280px;height:100vh;z-index:100;transition:left .3s}
-      .sidebar.open{left:0}
-      .header{padding:0 16px}
-      .hamburger{display:block;cursor:pointer;padding:8px;font-size:20px;color:var(--text-main)}
-    }
+    .kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+    .kpi-card{padding:14px;background:rgba(15,23,42,.6);border-radius:8px;border:1px solid rgba(31,41,55,.5);text-align:center}
+    .kpi-number{font-size:24px;font-weight:700}
+    .kpi-label{font-size:11px;color:var(--text-muted);margin-top:4px}
+    .card{background:radial-gradient(circle at top left,#111827,#020617 60%);border-radius:8px;border:1px solid rgba(31,41,55,.9);padding:16px;box-shadow:0 20px 50px rgba(0,0,0,.6);display:flex;flex-direction:column;flex:1;overflow:hidden}
+    .card-header{margin-bottom:12px}
+    .card-title{font-size:16px;font-weight:600}
+    .card-subtitle{font-size:11px;color:var(--text-soft);margin-top:2px}
+    .filters-container{background:rgba(15,23,42,.8);padding:12px;border-radius:8px;margin-bottom:12px;border:1px solid rgba(31,41,55,.7)}
+    .filters-title{font-size:12px;font-weight:600;margin-bottom:8px}
+    .filters-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
+    .filter-group label{font-size:11px;font-weight:600;color:var(--text-muted);margin-bottom:4px}
+    .filter-group input,.filter-group select{width:100%;padding:8px;background:#020617;border:1px solid rgba(55,65,81,.9);border-radius:4px;color:var(--text-main);font-size:11px}
+    .table-wrapper{border-radius:8px;border:1px solid rgba(31,41,55,.9);overflow:auto;flex:1}
+    .table-wrapper::-webkit-scrollbar{width:6px;height:6px}
+    .table-wrapper::-webkit-scrollbar-thumb{background:rgba(55,65,81,.5);border-radius:3px}
+    table{width:100%;border-collapse:collapse;font-size:12px}
+    thead{background:linear-gradient(90deg,#111827,#020617);position:sticky;top:0;z-index:10}
+    th{padding:10px 8px;text-align:left;font-weight:600;color:var(--text-muted);white-space:nowrap;font-size:11px;border-bottom:1px solid rgba(31,41,55,.6)}
+    td{padding:10px 8px;border-bottom:1px solid rgba(31,41,55,.6);word-wrap:break-word;word-break:break-word;white-space:normal}
+    tbody tr:hover{background:rgba(17,24,39,.8)}
+    select{background:#020617;border:1px solid rgba(55,65,81,.9);color:var(--text-main);padding:5px 6px;border-radius:4px;font-size:11px;cursor:pointer}
+    .btn-danger{background:var(--danger);color:#fff;padding:5px 8px;border:none;border-radius:4px;cursor:pointer;font-size:11px;font-weight:600}
+    .badge{display:inline-block;padding:3px 6px;background:var(--accent-soft);color:var(--accent);border-radius:3px;font-size:10px;font-weight:600}
+    .empty-state{text-align:center;padding:40px 20px;color:var(--text-soft);font-size:12px}
+    .message{padding:12px 16px;border-radius:6px;margin-bottom:12px;border-left:3px solid;display:none;font-size:12px}
+    .message.show{display:block;animation:slideIn .3s ease}
+    .message-success{background:rgba(34,197,94,.15);color:var(--success);border-left-color:var(--success)}
+    .message-error{background:rgba(239,68,68,.15);color:var(--danger);border-left-color:var(--danger)}
+    @keyframes slideIn{from{opacity:0;transform:translateX(-20px)}to{opacity:1;transform:translateX(0)}}
+    @media (max-width:768px){.app-main{grid-template-columns:1fr}.sidebar{position:fixed;left:-280px;width:280px;height:100vh;z-index:100;transition:left .3s}.sidebar.open{left:0}.header{padding:0 16px}.hamburger{display:block;cursor:pointer;padding:8px;font-size:20px;color:var(--text-main)}.kpi-grid{grid-template-columns:repeat(2,1fr)}.filters-row{grid-template-columns:1fr}.page-title{font-size:20px}table{font-size:11px}th,td{padding:8px 4px}}
   </style>
 </head>
 <body>
   <!-- Login -->
   <div class="login-page" id="loginPage">
     <div class="login-container">
-      <div class="login-header"><div class="login-title">Centralized Digital Lead Management</div></div>
+      <div class="login-header">
+        <div class="login-title">Centralized Digital Lead Management</div>
+      </div>
       <form class="login-form" onsubmit="handleLogin(event)">
-        <div class="form-group"><label>Username</label><input type="text" id="loginUsername" required></div>
-        <div class="form-group"><label>Password</label><input type="password" id="loginPassword" required></div>
+        <div class="form-group">
+          <label>Username</label>
+          <input type="text" id="loginUsername" placeholder="Enter username" required>
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="loginPassword" placeholder="Enter password" required>
+        </div>
         <button type="submit" class="login-btn">Sign In</button>
       </form>
     </div>
@@ -148,7 +164,7 @@
 
         <div class="sidebar-section">
           <div class="sidebar-title">Firestore</div>
-          <button class="btn btn-primary" onclick="initFirebase()">🔥 Connect Firebase</button>
+          <button class="btn btn-primary" onclick="initFirebase()" style="margin-bottom:6px;">🔥 Connect Firebase</button>
           <button class="btn btn-secondary" onclick="pullFromFirestore()">⬇ Pull</button>
           <button id="liveBtn" class="btn btn-secondary" onclick="toggleLiveSync()">🔔 Live: Off</button>
         </div>
@@ -159,9 +175,11 @@
             <input type="file" id="csvFile" accept=".csv" onchange="handleFileSelect(event)">
             <label for="csvFile" class="file-input-label">📁 Select CSV</label>
           </div>
-          <button id="processBtn" class="btn btn-primary" onclick="uploadAndParseCSV()" disabled>📋 Parse &amp; Map</button>
+          <button id="processBtn" class="btn btn-primary" onclick="uploadAndParseCSV()" disabled>📋 Parse & Map</button>
           <button class="btn btn-secondary" onclick="clearImport()">🔄 Reset</button>
         </div>
+
+        <div class="divider"></div>
 
         <div class="sidebar-section">
           <div class="sidebar-title">Lead Database</div>
@@ -175,7 +193,9 @@
 
         <div class="sidebar-section">
           <div class="sidebar-title">Activity Logs</div>
-          <div class="debug-log" id="debugLog"><div class="log-entry info">[--:--:--] Ready</div></div>
+          <div class="debug-log" id="debugLog">
+            <div class="log-entry info">[--:--:--] Ready</div>
+          </div>
         </div>
       </aside>
 
@@ -198,11 +218,10 @@
           <div class="card-header">
             <div>
               <div class="card-title">📊 All Leads</div>
-              <div class="card-subtitle">Lead Source, HOD, Assign To (Sales), Lead Status &amp; Remarks</div>
+              <div class="card-subtitle">Lead Source, HOD, Assign To (Sales), Lead Status & Remarks</div>
             </div>
           </div>
 
-          <!-- Filters -->
           <div class="filters-container">
             <div class="filters-title">🔍 Filters</div>
             <div class="filters-row">
@@ -213,8 +232,10 @@
               <div class="filter-group">
                 <label>Segment</label>
                 <select id="filterSegment" onchange="applyFilters()">
-                  <option value="">All</option><option value="Pune">Pune</option>
-                  <option value="Ahmedabad">Ahmedabad</option><option value="Bangalore">Bangalore</option>
+                  <option value="">All</option>
+                  <option value="Pune">Pune</option>
+                  <option value="Ahmedabad">Ahmedabad</option>
+                  <option value="Bangalore">Bangalore</option>
                   <option value="Maharashtra">Maharashtra</option>
                 </select>
               </div>
@@ -222,7 +243,10 @@
                 <label>HOD</label>
                 <select id="filterHOD" onchange="applyFilters()">
                   <option value="">All</option>
-                  <option>Onkar</option><option>Goraksha</option><option>Sachin</option><option>Rajesh</option>
+                  <option value="Onkar">Onkar</option>
+                  <option value="Goraksha">Goraksha</option>
+                  <option value="Sachin">Sachin</option>
+                  <option value="Rajesh">Rajesh</option>
                 </select>
               </div>
               <div class="filter-group">
@@ -239,7 +263,7 @@
               </div>
               <div class="filter-group">
                 <label>Assign To (Sales)</label>
-                <input id="filterAssignSales" placeholder="e.g. Ravi / Sales team 1" onkeyup="applyFilters()">
+                <input type="text" id="filterAssignSales" placeholder="e.g. Ravi / Sales team 1" onkeyup="applyFilters()">
               </div>
               <div style="display:flex;gap:6px;align-items:flex-end;">
                 <button class="btn btn-primary" style="margin:0;padding:8px;" onclick="applyFilters()">Filter</button>
@@ -250,30 +274,31 @@
             </div>
           </div>
 
-          <!-- Table -->
           <div class="table-wrapper">
             <table id="leadsTable">
               <thead>
                 <tr>
-                  <th><div class="cell">Lead ID</div></th>
-                  <th><div class="cell">Name</div></th>
-                  <th><div class="cell">Phone</div></th>
-                  <th><div class="cell">Email</div></th>
-                  <th><div class="cell">Lead Source</div></th>
-                  <th><div class="cell">Products</div></th>
-                  <th><div class="cell">City</div></th>
-                  <th><div class="cell">Segment</div></th>
-                  <th><div class="cell">HOD</div></th>
-                  <th><div class="cell">Assign To (Sales)</div></th>
-                  <th><div class="cell">Category</div></th>
-                  <th><div class="cell">Lead Status</div></th>
-                  <th><div class="cell">Campaign</div></th>
-                  <th><div class="cell">Remarks</div></th>
-                  <th><div class="cell">Action</div></th>
+                  <th>Lead ID</th>
+                  <th>Name</th>
+                  <th>Phone</th>
+                  <th>Email</th>
+                  <th>Lead Source</th>
+                  <th>Products</th>
+                  <th>City</th>
+                  <th>Segment</th>
+                  <th>HOD</th>
+                  <th>Assign To (Sales)</th>
+                  <th>Category</th>
+                  <th>Lead Status</th>
+                  <th>Campaign</th>
+                  <th>Remarks</th>
+                  <th>Action</th>
                 </tr>
               </thead>
               <tbody id="tableBody">
-                <tr><td colspan="15"><div class="empty-state">📁 No leads. Upload CSV to start!</div></td></tr>
+                <tr>
+                  <td colspan="15"><div class="empty-state">📁 No leads. Upload CSV to start!</div></td>
+                </tr>
               </tbody>
             </table>
           </div>
@@ -286,7 +311,8 @@
   <!-- Mapping Modal -->
   <div class="mapping-modal" id="mappingModal">
     <div class="mapping-modal-content">
-      <div class="mapping-modal-header">🔗 Header Column Mapping
+      <div class="mapping-modal-header">
+        🔗 Header Column Mapping
         <button class="mapping-modal-close" onclick="closeMappingModal()">✕</button>
       </div>
       <p style="font-size:11px;color:var(--text-soft);margin-bottom:16px;">
@@ -294,311 +320,470 @@
       </p>
       <div id="mappingFieldsContainer"></div>
       <div class="mapping-actions">
-        <button class="btn btn-primary" onclick="confirmAndCleanData()">✅ Confirm &amp; Process</button>
+        <button class="btn btn-primary" onclick="confirmAndCleanData()">✅ Confirm & Process</button>
         <button class="btn btn-secondary" onclick="closeMappingModal()">Cancel</button>
       </div>
     </div>
   </div>
 
-  <!-- App Logic -->
+  <!-- App Logic (compat SDK) -->
   <script>
-    /* ========= Users ========= */
+    /* ========= App State & Constants ========= */
     const USERS = {
-      'admin':{password:'admin123',displayName:'Admin',isAdmin:true},
-      'onkar':{password:'onkar123',displayName:'Onkar',isAdmin:false},
-      'goraksha':{password:'goraksha123',displayName:'Goraksha',isAdmin:false},
-      'sachin':{password:'sachin123',displayName:'Sachin',isAdmin:false},
-      'rajesh':{password:'rajesh123',displayName:'Rajesh',isAdmin:false}
+      'admin':   { password:'admin123',   displayName:'Admin',   isAdmin:true  },
+      'onkar':   { password:'onkar123',   displayName:'Onkar',   isAdmin:false },
+      'goraksha':{ password:'goraksha123',displayName:'Goraksha',isAdmin:false },
+      'sachin':  { password:'sachin123',  displayName:'Sachin',  isAdmin:false },
+      'rajesh':  { password:'rajesh123',  displayName:'Rajesh',  isAdmin:false }
     };
 
-    /* ========= Status routing ========= */
+    // Lead-Status → HOD / Assign-To routing (per your spec)
     const LEAD_STATUS_ROUTING = {
       'Open':            { hod:'Onkar',    assign_to:'Sales team 1' },
       'Not Interested':  { hod:'Rajesh',   assign_to:'Sales team 2' },
       'Follow-up':       { hod:'Sachin',   assign_to:'Sales team 3' },
       'Converted':       { hod:'Goraksha', assign_to:'' }
+      // 'Assigned' & 'Qualified' -> keep existing HOD & Assign To unless you want custom mapping
     };
 
-    /* ========= Emoji options ========= */
-    const CATEGORY_OPTIONS = [
-      {value:'Request Call Back',  icon:'📞'},
-      {value:'Meet Senior Person', icon:'👥'},
-      {value:'Interested in Quote',icon:'💰'},
-      {value:'Send Product Details',icon:'📄'},
-      {value:'Requesting Demo',    icon:'🎬'}
-    ];
-    const LEAD_STATUS_OPTIONS = [
-      {value:'Open',           icon:'📂'},
-      {value:'Not Interested', icon:'🚫'},
-      {value:'Follow-up',      icon:'📞'},
-      {value:'Assigned',       icon:'📌'},
-      {value:'Qualified',      icon:'✅'},
-      {value:'Converted',      icon:'🎉'}
-    ];
-
     const HODS = ['Onkar','Goraksha','Sachin','Rajesh'];
+    const CATEGORY_OPTIONS = [
+      'Request Call Back','Meet Senior Person','Interested in Quote','Send Product Details','Requesting Demo'
+    ];
+    const LEAD_STATUS_OPTIONS = ['Open','Not Interested','Follow-up','Assigned','Qualified','Converted'];
 
-    /* ========= State ========= */
-    let currentUser=null; const STORAGE_KEY='cdlm_leads_v18_revised';
-    let allLeads=[]; let registeredPhones=new Set();
-    let db=null; let fbInitialized=false; let liveUnsubscribe=null;
+    let currentUser = null;
+    const STORAGE_KEY = 'cdlm_leads_v18_revised';
+    let allLeads = [];
+    let registeredPhones = new Set();
+    let db = null;
+    let fbInitialized = false;
+    let liveUnsubscribe = null;
 
-    let rawCSVData=[]; let fileHeaders=[]; let columnMapping={}; let currentFilteredLeads=[];
+    let rawCSVData = [];
+    let fileHeaders = [];
+    let columnMapping = {};
+    let currentFilteredLeads = [];
 
-    /* ========= Cleansing helpers ========= */
-    const COMMON_DOMAINS=['gmail.com','yahoo.com','outlook.com','hotmail.com','live.com','aol.com','icloud.com','proton.me','rediffmail.com','rotomag.com','rotosol.com'];
-    const DOMAIN_FIX_MAP={'mail.com':'gmail.com','gmal.com':'gmail.com','gmial.com':'gmail.com','gmail.co':'gmail.com','gmail.con':'gmail.com','yahooo.com':'yahoo.com','yahho.com':'yahoo.com','yaho.com':'yahoo.com','hotmai.com':'hotmail.com','hotmail.co':'hotmail.com','outlok.com':'outlook.com','outlook.co':'outlook.com','proton.com':'proton.me','redifmail.com':'rediffmail.com'};
+    const COMMON_DOMAINS = [
+      'gmail.com','yahoo.com','outlook.com','hotmail.com','live.com',
+      'aol.com','icloud.com','proton.me','rediffmail.com','rotomag.com','rotosol.com'
+    ];
+    const DOMAIN_FIX_MAP = {
+      'mail.com':'gmail.com','gmal.com':'gmail.com','gmial.com':'gmail.com',
+      'gmail.co':'gmail.com','gmail.con':'gmail.com',
+      'yahooo.com':'yahoo.com','yahho.com':'yahoo.com','yaho.com':'yahoo.com',
+      'hotmai.com':'hotmail.com','hotmail.co':'hotmail.com',
+      'outlok.com':'outlook.com','outlook.co':'outlook.com',
+      'proton.com':'proton.me','redifmail.com':'rediffmail.com'
+    };
 
-    function levenshtein(a,b){const m=a.length,n=b.length;const dp=Array.from({length:m+1},()=>Array(n+1).fill(0));for(let i=0;i<=m;i++)dp[i][0]=i;for(let j=0;j<=n;j++)dp[0][j]=j;for(let i=1;i<=m;i++){for(let j=1;j<=n;j++){const c=a[i-1]===b[j-1]?0:1;dp[i][j]=Math.min(dp[i-1][j]+1,dp[i][j-1]+1,dp[i-1][j-1]+c);}}return dp[m][n];}
-    function bestCommonDomain(d){let best={domain:d,distance:Infinity}; for(const k of COMMON_DOMAINS){const dist=levenshtein(d,k); if(dist<best.distance) best={domain:k,distance:dist};} return best;}
-    function fixEmailDomain(domainRaw){let d=(domainRaw||'').trim().toLowerCase(); if(DOMAIN_FIX_MAP[d]) return {domain:DOMAIN_FIX_MAP[d],corrected:true}; if(!/\.[a-z]{2,}$/.test(d)){const cand=d+'.com'; const best=bestCommonDomain(cand); if(best.distance<=2) return {domain:best.domain,corrected:true}; return {domain:cand,corrected:true};} const best=bestCommonDomain(d); if(best.distance<=2) return {domain:best.domain,corrected:true}; return {domain:d,corrected:false};}
-    function normalizeEmail(raw){ if(!raw) return {email:'',corrected:false}; let e=String(raw).trim().replace(/\s+/g,'').toLowerCase(); e=e.replace(/\(at\)/g,'@').replace(/\[at\]/g,'@'); if(!e.includes('@')) return {email:'',corrected:false}; const parts=e.split('@'); if(parts.length!==2||!parts[0]) return {email:'',corrected:false}; const {domain}=fixEmailDomain(parts[1]); return {email:`${parts[0]}@${domain}`,corrected:true};}
-    function cleanPhoneNumber(phone){ if(!phone) return null; const d=phone.replace(/\D/g,''); if(d.length<10) return null; const last10=d.slice(-10); return '+91-'+last10.slice(0,5)+'-'+last10.slice(5); }
-    function parseProducts(productRaw){ if(!productRaw) return []; const ds=['; ', ';', ',', '|']; let products=[productRaw]; for(const x of ds){ if(productRaw.includes(x)){ products=productRaw.split(x).map(p=>p.trim()).filter(Boolean); break; } } return products; }
-    function determineSegment(city){ if(!city) return 'Maharashtra'; const c=city.toLowerCase(); if(c.includes('pune')||c.includes('dharashiv')) return 'Pune'; if(c.includes('ahmedabad')||c.includes('jalgaon')) return 'Ahmedabad'; if(c.includes('bangalore')) return 'Bangalore'; return 'Maharashtra'; }
+    // Mapping patterns – updated fields
+    const dbFieldPatterns = {
+      'full_name':   ['name','full name','full_name','first name','customer','exhibitor'],
+      'phone_number':['phone','mobile','contact number','phone_number','contact','tel'],
+      'email':       ['email','e-mail','mail','email id','email_id'],
+      'lead_source': ['lead source','source','utm_source','who you are','who_you_are','designation','role','position'],
+      'city':        ['city','location','state','region','address'],
+      'product':     ['product','interested in','interested_in','solution'],
+      // Optional if present in CSV
+      'hod':         ['hod','head of department','assign head'],
+      'assign_to':   ['assign to','sales person','salesperson','owner','assigned to']
+    };
 
-    /* ========= Firebase ========= */
-    const firebaseConfig={ apiKey:"AIzaSyAljqpdkTFXb8VMa-78wLB1IBJVj4ZsdyQ", authDomain:"cdlm-lead-management.firebaseapp.com", projectId:"cdlm-lead-management", storageBucket:"cdlm-lead-management.appspot.com", messagingSenderId:"141867154532", appId:"1:141867154532:web:d2553d1808c6ce6b233371", measurementId:"G-HWFEMQBXZS" };
+    /* ========= Firebase Config (Hardcoded) ========= */
+    const firebaseConfig = {
+      apiKey: "AIzaSyAljqpdkTFXb8VMa-78wLB1IBJVj4ZsdyQ",
+      authDomain: "cdlm-lead-management.firebaseapp.com",
+      projectId: "cdlm-lead-management",
+      storageBucket: "cdlm-lead-management.appspot.com",
+      messagingSenderId: "141867154532",
+      appId: "1:141867154532:web:d2553d1808c6ce6b233371",
+      measurementId: "G-HWFEMQBXZS"
+    };
 
-    function initFirebase(){
-      try{
-        if(!firebase.apps || firebase.apps.length===0){ firebase.initializeApp(firebaseConfig); }
+    function initFirebase() {
+      try {
+        if (!firebase.apps || firebase.apps.length === 0) {
+          firebase.initializeApp(firebaseConfig);
+        }
         db = firebase.firestore();
         fbInitialized = true;
-        addDebugLog('✅ Firebase Connected (compat)','success');
-        showMessage('Firebase Connected!','success');
-      }catch(err){
-        addDebugLog('❌ '+err.message,'error');
-        showMessage('Error: '+err.message,'error');
+        addDebugLog('✅ Firebase Connected (compat)', 'success');
+        showMessage('Firebase Connected!', 'success');
+      } catch (err) {
+        addDebugLog('❌ ' + err.message, 'error');
+        showMessage('Error: ' + err.message, 'error');
       }
     }
 
-    async function syncToFirestore(){
-      if(!fbInitialized||!db){ showMessage('Connect Firebase first','error'); return; }
-      if(!allLeads.length){ showMessage('No leads to sync','error'); return; }
-      try{
-        addDebugLog('⏳ Syncing...','info');
-        const batch = db.batch(); const ref = db.collection('leads');
-        allLeads.forEach(l=>{ const doc=ref.doc(l.lead_id); batch.set(doc,{...l,created_at:firebase.firestore.FieldValue.serverTimestamp(),sync_time:new Date().toISOString()},{merge:true});});
-        await batch.commit();
-        addDebugLog('✅ Synced '+allLeads.length+' leads','success'); showMessage('✅ Synced to Firestore!','success');
-      }catch(err){ addDebugLog('❌ '+err.message,'error'); showMessage('Sync error: '+err.message,'error');}
-    }
-
-    async function pullFromFirestore(){
-      if(!fbInitialized||!db){ showMessage('Connect Firebase first','error'); return;}
-      try{
-        addDebugLog('⏳ Pulling from Firestore...','info');
-        const snap = await db.collection('leads').get(); const pulled=[];
-        snap.forEach(doc=>{ const d=doc.data(); pulled.push({
-          lead_id:d.lead_id||doc.id, full_name:d.full_name||'', phone_number:d.phone_number||'', email:d.email||'',
-          lead_source:d.lead_source||'', product:d.product||'', products_list:d.products_list||[],
-          city:d.city||'', segment:d.segment||'Maharashtra', hod:d.hod||'', assign_to:d.assign_to||'',
-          category:d.category||'', lead_status:d.lead_status||'Open', campaign_enabled:d.campaign_enabled||'No',
-          remarks:d.remarks||'', date_added:d.date_added||new Date().toISOString().split('T')[0]
-        });});
-        allLeads=pulled.sort((a,b)=>(a.lead_id||'').localeCompare(b.lead_id||'')); registeredPhones=new Set(allLeads.map(x=>x.phone_number));
-        saveData(); applyFilters(); updateMetrics(); updateAssignedPeopleSection();
-        addDebugLog('✅ Pulled '+allLeads.length+' leads','success'); showMessage('✅ Pulled from Firestore','success');
-      }catch(err){ addDebugLog('❌ '+err.message,'error'); showMessage('Pull error: '+err.message,'error');}
-    }
-
-    function toggleLiveSync(){
-      const btn=document.getElementById('liveBtn');
-      if(!fbInitialized||!db){ showMessage('Connect Firebase first','error'); return; }
-      if(liveUnsubscribe){ liveUnsubscribe(); liveUnsubscribe=null; btn.textContent='🔔 Live: Off'; btn.classList.remove('btn-primary'); btn.classList.add('btn-secondary'); addDebugLog('🔕 Live sync stopped','info'); return;}
-      liveUnsubscribe = db.collection('leads').onSnapshot(snap=>{
-        const rows=[]; snap.forEach(doc=>{ const d=doc.data(); rows.push({
-          lead_id:d.lead_id||doc.id, full_name:d.full_name||'', phone_number:d.phone_number||'', email:d.email||'',
-          lead_source:d.lead_source||'', product:d.product||'', products_list:d.products_list||[],
-          city:d.city||'', segment:d.segment||'Maharashtra', hod:d.hod||'', assign_to:d.assign_to||'',
-          category:d.category||'', lead_status:d.lead_status||'Open', campaign_enabled:d.campaign_enabled||'No',
-          remarks:d.remarks||'', date_added:d.date_added||new Date().toISOString().split('T')[0]
-        });});
-        allLeads=rows.sort((a,b)=>(a.lead_id||'').localeCompare(b.lead_id||'')); registeredPhones=new Set(allLeads.map(x=>x.phone_number));
-        saveData(); applyFilters(); updateMetrics(); updateAssignedPeopleSection();
-        addDebugLog('🔔 Live update applied ('+allLeads.length+')','success');
-      },err=>addDebugLog('❌ Live error: '+err.message,'error'));
-      btn.textContent='🔔 Live: On'; btn.classList.remove('btn-secondary'); btn.classList.add('btn-primary'); addDebugLog('🔔 Live sync started','info');
-    }
-
     /* ========= CSV Mapping ========= */
-    const dbFieldPatterns = {
-      'full_name':['name','full name','full_name','first name','customer','exhibitor'],
-      'phone_number':['phone','mobile','contact number','phone_number','contact','tel'],
-      'email':['email','e-mail','mail','email id','email_id'],
-      'lead_source':['lead source','source','utm_source','who you are','who_you_are','designation','role','position'],
-      'city':['city','location','state','region','address'],
-      'product':['product','interested in','interested_in','solution'],
-      'hod':['hod','head of department','assign head'],
-      'assign_to':['assign to','sales person','salesperson','owner','assigned to']
-    };
-
-    function autoDetectColumns(headers){
-      columnMapping={};
-      Object.keys(dbFieldPatterns).forEach(dbField=>{
-        const pats=dbFieldPatterns[dbField]; let matched='';
-        for(const h of headers){ const hl=(h||'').toLowerCase(); if(pats.some(p=>hl.includes(p))){ matched=h; break; } }
-        columnMapping[dbField]=matched;
+    function autoDetectColumns(headers) {
+      columnMapping = {};
+      Object.keys(dbFieldPatterns).forEach(dbField => {
+        const patterns = dbFieldPatterns[dbField];
+        let matched = '';
+        for (const header of headers) {
+          const h = (header || '').toLowerCase();
+          if (patterns.some(p => h.includes(p))) { matched = header; break; }
+        }
+        columnMapping[dbField] = matched;
       });
       return columnMapping;
     }
-    function renderMappingModal(){
-      const c=document.getElementById('mappingFieldsContainer');
-      const LABELS={full_name:'Full Name',phone_number:'Phone Number',email:'Email',lead_source:'Lead Source',city:'City',product:'Product'};
-      let html=''; Object.keys(LABELS).forEach(k=>{
-        const det=!!columnMapping[k];
-        html+=`<div class="mapping-item">
-          <div class="mapping-label">🔹 ${LABELS[k]} ${det?'<span class="mapping-detected">✓</span>':''}</div>
-          <select class="mapping-select" id="map_${k}">
-            <option value="">-- Skip --</option>
-            ${fileHeaders.map(h=>`<option value="${h}" ${columnMapping[k]===h?'selected':''}>${h}</option>`).join('')}
-          </select>
-          <div class="mapping-hint">${(dbFieldPatterns[k]||[]).join(', ')}</div>
-        </div>`;
-      }); c.innerHTML=html;
+
+    function renderMappingModal() {
+      const c = document.getElementById('mappingFieldsContainer');
+      const LABELS = {
+        full_name: 'Full Name',
+        phone_number: 'Phone Number',
+        email: 'Email',
+        lead_source: 'Lead Source',
+        city: 'City',
+        product: 'Product'
+      };
+      let html = '';
+      Object.keys(LABELS).forEach(dbField => {
+        const detected = !!columnMapping[dbField];
+        html += `
+          <div class="mapping-item">
+            <div class="mapping-label">🔹 ${LABELS[dbField]} ${detected ? '<span class="mapping-detected">✓</span>' : ''}</div>
+            <select class="mapping-select" id="map_${dbField}">
+              <option value="">-- Skip --</option>
+              ${fileHeaders.map(h => `<option value="${h}" ${columnMapping[dbField]===h?'selected':''}>${h}</option>`).join('')}
+            </select>
+            <div class="mapping-hint">${(dbFieldPatterns[dbField]||[]).join(', ')}</div>
+          </div>`;
+      });
+      c.innerHTML = html;
     }
     function openMappingModal(){ renderMappingModal(); document.getElementById('mappingModal').classList.add('show'); }
     function closeMappingModal(){ document.getElementById('mappingModal').classList.remove('show'); }
-    function confirmAndCleanData(){ Object.keys(dbFieldPatterns).forEach(k=>{ const el=document.getElementById('map_'+k); if(el) columnMapping[k]=el.value; }); addDebugLog('✅ Mapping confirmed','success'); closeMappingModal(); processAndCleanData(); }
+    function confirmAndCleanData(){
+      Object.keys(dbFieldPatterns).forEach(k => {
+        const el = document.getElementById('map_'+k);
+        if(el) columnMapping[k] = el.value;
+      });
+      addDebugLog('✅ Mapping confirmed','success');
+      closeMappingModal();
+      processAndCleanData();
+    }
 
     /* ========= Auth ========= */
-    function handleLogin(e){ e.preventDefault(); const u=document.getElementById('loginUsername').value.trim(); const p=document.getElementById('loginPassword').value.trim(); if(USERS[u]&&USERS[u].password===p){ currentUser={username:u,displayName:USERS[u].displayName,isAdmin:USERS[u].isAdmin}; localStorage.setItem('cdlm_current_user',JSON.stringify(currentUser)); showDashboard(); } else { alert('Invalid credentials'); } }
-    function handleLogout(){ if(!confirm('Logout?')) return; currentUser=null; localStorage.removeItem('cdlm_current_user'); document.getElementById('appShell').classList.add('hidden'); document.getElementById('loginPage').style.display='flex'; }
-    function showDashboard(){ document.getElementById('loginPage').style.display='none'; document.getElementById('appShell').classList.remove('hidden'); document.getElementById('headerUsername').textContent=currentUser.displayName; document.getElementById('headerUserRole').textContent=currentUser.isAdmin?'Admin':'Team'; loadData(); renderTable(allLeads); updateMetrics(); updateAssignedPeopleSection(); currentFilteredLeads=[...allLeads]; addDebugLog('✅ Dashboard loaded','success'); }
+    function handleLogin(e){
+      e.preventDefault();
+      const u = document.getElementById('loginUsername').value.trim();
+      const p = document.getElementById('loginPassword').value.trim();
+      if(USERS[u] && USERS[u].password === p){
+        currentUser = { username:u, displayName:USERS[u].displayName, isAdmin:USERS[u].isAdmin };
+        localStorage.setItem('cdlm_current_user', JSON.stringify(currentUser));
+        showDashboard();
+      } else { alert('Invalid credentials'); }
+    }
+    function handleLogout(){
+      if(!confirm('Logout?')) return;
+      currentUser=null; localStorage.removeItem('cdlm_current_user');
+      document.getElementById('appShell').classList.add('hidden');
+      document.getElementById('loginPage').style.display='flex';
+    }
+    function showDashboard(){
+      document.getElementById('loginPage').style.display='none';
+      document.getElementById('appShell').classList.remove('hidden');
+      document.getElementById('headerUsername').textContent = currentUser.displayName;
+      document.getElementById('headerUserRole').textContent = currentUser.isAdmin ? 'Admin' : 'Team';
+      loadData(); renderTable(allLeads); updateMetrics(); updateAssignedPeopleSection();
+      currentFilteredLeads=[...allLeads];
+      addDebugLog('✅ Dashboard loaded','success');
+    }
 
     /* ========= File Import ========= */
     function handleFileSelect(e){ if(e.target.files[0]){ addDebugLog('📁 File: '+e.target.files[0].name,'info'); document.getElementById('processBtn').disabled=false; } }
     function clearImport(){ document.getElementById('csvFile').value=''; document.getElementById('processBtn').disabled=true; }
-    async function uploadAndParseCSV(){ const file=document.getElementById('csvFile').files[0]; if(!file) return; try{ addDebugLog('⏳ Parsing CSV...','info'); const text=await file.text(); rawCSVData=parseCSV(text); if(!rawCSVData.length){ showMessage('No data in CSV','error'); return;} fileHeaders=Object.keys(rawCSVData[0]||{}); addDebugLog(`📋 ${rawCSVData.length} rows, ${fileHeaders.length} columns`,'info'); autoDetectColumns(fileHeaders); openMappingModal(); }catch(err){ addDebugLog('❌ '+err.message,'error'); showMessage('Error: '+err.message,'error'); } }
-    function parseCSV(text){ const lines=text.trim().split('\n'); if(lines.length<2) return []; const headers=parseCSVLine(lines[0]).map(h=>h.trim().toLowerCase()); const rows=[]; for(let i=1;i<lines.length;i++){ const cells=parseCSVLine(lines[i]); const row={}; headers.forEach((h,idx)=>{ row[h]=(cells[idx]||'').trim(); }); if(Object.values(row).some(v=>v!=='')) rows.push(row); } return rows; }
-    function parseCSVLine(line){ const cells=[]; let cur=''; let q=false; for(let i=0;i<line.length;i++){ const ch=line[i]; if(ch==='\"'&&line[i+1]==='\"'){ cur+='\"'; i++; } else if(ch==='\"'){ q=!q; } else if(ch===','&&!q){ cells.push(cur); cur=''; } else { cur+=ch; } } cells.push(cur); return cells; }
+    async function uploadAndParseCSV(){
+      const file = document.getElementById('csvFile').files[0]; if(!file) return;
+      try{
+        addDebugLog('⏳ Parsing CSV...','info');
+        const text = await file.text();
+        rawCSVData = parseCSV(text);
+        if(!rawCSVData.length){ showMessage('No data in CSV','error'); return; }
+        fileHeaders = Object.keys(rawCSVData[0]||{});
+        addDebugLog(`📋 ${rawCSVData.length} rows, ${fileHeaders.length} columns`,'info');
+        autoDetectColumns(fileHeaders);
+        openMappingModal();
+      }catch(err){ addDebugLog('❌ '+err.message,'error'); showMessage('Error: '+err.message,'error'); }
+    }
+    function parseCSV(text){
+      const lines = text.trim().split('\n'); if(lines.length<2) return [];
+      const headers = parseCSVLine(lines[0]).map(h => h.trim().toLowerCase());
+      const rows = [];
+      for(let i=1;i<lines.length;i++){
+        const cells = parseCSVLine(lines[i]); const row={};
+        headers.forEach((h,idx)=>{ row[h] = (cells[idx]||'').trim(); });
+        if(Object.values(row).some(v=>v!=='')) rows.push(row);
+      }
+      return rows;
+    }
+    function parseCSVLine(line){
+      const cells=[]; let cur=''; let q=false;
+      for(let i=0;i<line.length;i++){
+        const ch=line[i];
+        if(ch==='\"' && line[i+1]==='\"'){ cur+='\"'; i++; }
+        else if(ch==='\"'){ q=!q; }
+        else if(ch===',' && !q){ cells.push(cur); cur=''; }
+        else { cur+=ch; }
+      }
+      cells.push(cur); return cells;
+    }
 
-    /* ========= Process & Clean ========= */
+    /* ========= Cleansing ========= */
+    function levenshtein(a,b){ const m=a.length,n=b.length; const dp=Array.from({length:m+1},()=>Array(n+1).fill(0));
+      for(let i=0;i<=m;i++) dp[i][0]=i; for(let j=0;j<=n;j++) dp[0][j]=j;
+      for(let i=1;i<=m;i++){ for(let j=1;j<=n;j++){ const cost=a[i-1]===b[j-1]?0:1; dp[i][j]=Math.min(dp[i-1][j]+1,dp[i][j-1]+1,dp[i-1][j-1]+cost); } }
+      return dp[m][n];
+    }
+    function bestCommonDomain(d){ let best={domain:d,distance:Infinity}; COMMON_DOMAINS.forEach(k=>{ const dist=levenshtein(d,k); if(dist<best.distance) best={domain:k,distance:dist}; }); return best; }
+    function fixEmailDomain(domainRaw){
+      let d=(domainRaw||'').trim().toLowerCase();
+      if(DOMAIN_FIX_MAP[d]) return {domain:DOMAIN_FIX_MAP[d],corrected:true};
+      if(!/\.[a-z]{2,}$/.test(d)){ const cand=d+'.com'; const best=bestCommonDomain(cand); if(best.distance<=2) return {domain:best.domain,corrected:true}; return {domain:cand,corrected:true}; }
+      const best=bestCommonDomain(d); if(best.distance<=2) return {domain:best.domain,corrected:true}; return {domain:d,corrected:false};
+    }
+    function normalizeEmail(raw){
+      if(!raw) return {email:'',corrected:false};
+      let e=String(raw).trim().replace(/\s+/g,'').toLowerCase();
+      e=e.replace(/\(at\)/g,'@').replace(/\[at\]/g,'@');
+      if(!e.includes('@')) return {email:'',corrected:false};
+      const parts=e.split('@'); if(parts.length!==2 || !parts[0]) return {email:'',corrected:false};
+      const {domain,corrected}=fixEmailDomain(parts[1]); return {email:`${parts[0]}@${domain}`,corrected};
+    }
+    function cleanPhoneNumber(phone){ if(!phone) return null; const digits=phone.replace(/\D/g,''); if(digits.length<10) return null; const last10=digits.slice(-10); return '+91-'+last10.slice(0,5)+'-'+last10.slice(5); }
+    function parseProducts(productRaw){ if(!productRaw) return []; const ds=['; ', ';', ',', '|']; let products=[productRaw]; for(const d of ds){ if(productRaw.includes(d)){ products=productRaw.split(d).map(p=>p.trim()).filter(Boolean); break; } } return products; }
+    function determineSegment(city){ if(!city) return 'Maharashtra'; const c=city.toLowerCase(); if(c.includes('pune')||c.includes('dharashiv')) return 'Pune'; if(c.includes('ahmedabad')||c.includes('jalgaon')) return 'Ahmedabad'; if(c.includes('bangalore')) return 'Bangalore'; return 'Maharashtra'; }
+
     function processAndCleanData(){
       const cleaned=[]; let skipped=0;
       rawCSVData.forEach(row=>{
-        const name=row[columnMapping.full_name]||''; let phone=row[columnMapping.phone_number]||'';
-        const emailRaw=row[columnMapping.email]||''; const leadSource=row[columnMapping.lead_source]||'';
-        const city=row[columnMapping.city]||''; const productRaw=row[columnMapping.product]||'';
-        const hodCsv=columnMapping.hod?row[columnMapping.hod]||'':''; const assignCsv=columnMapping.assign_to?row[columnMapping.assign_to]||'':'';
+        const name  = row[columnMapping.full_name]   || '';
+        let   phone = row[columnMapping.phone_number]|| '';
+        const emailRaw = row[columnMapping.email]     || '';
+        const leadSource = row[columnMapping.lead_source] || '';
+        const city  = row[columnMapping.city]        || '';
+        const productRaw = row[columnMapping.product]|| '';
+        // optional direct csv mapping
+        const hodCsv   = columnMapping.hod       ? (row[columnMapping.hod]||'')       : '';
+        const assignCsv= columnMapping.assign_to ? (row[columnMapping.assign_to]||'') : '';
 
-        if(!name||!phone){ skipped++; return; }
-        phone=cleanPhoneNumber(phone); if(!phone){ skipped++; return; }
-        if(registeredPhones.has(phone)){ addDebugLog('🚫 Duplicate: '+phone,'warning'); skipped++; return;}
+        if(!name || !phone){ skipped++; return; }
+        phone = cleanPhoneNumber(phone); if(!phone){ skipped++; return; }
+        if(registeredPhones.has(phone)){ addDebugLog('🚫 Duplicate: '+phone,'warning'); skipped++; return; }
         registeredPhones.add(phone);
 
-        const emailInfo=normalizeEmail(emailRaw); const products=parseProducts(productRaw); const primaryProduct=products.length?products[0]:'General';
+        const emailInfo=normalizeEmail(emailRaw);
+        const products=parseProducts(productRaw);
+        const primaryProduct=products.length?products[0]:'General';
 
-        const lead_status='Open'; const route=LEAD_STATUS_ROUTING[lead_status]||{hod:'Onkar',assign_to:'Sales team 1'};
-        const hod=hodCsv||route.hod; const assign_to=assignCsv||route.assign_to;
+        // Default lead status & routing
+        const lead_status='Open';
+        const route = LEAD_STATUS_ROUTING[lead_status] || { hod:'Onkar', assign_to:'Sales team 1' };
+        const hod = hodCsv || route.hod;
+        const assign_to = assignCsv || route.assign_to;
 
-        cleaned.push({ lead_id:'', full_name:name, phone_number:phone, email:emailInfo.email, lead_source:leadSource,
-          product:primaryProduct, products_list:products, city:city, segment:determineSegment(city),
-          hod, assign_to, category:'', lead_status, campaign_enabled:'No', remarks:'', date_added:new Date().toISOString().split('T')[0] });
+        cleaned.push({
+          lead_id:'', full_name:name, phone_number:phone, email:emailInfo.email,
+          lead_source:leadSource, product:primaryProduct, products_list:products,
+          city:city, segment:determineSegment(city),
+          hod:hod, assign_to:assign_to,
+          category:'', lead_status:lead_status, campaign_enabled:'No',
+          remarks:'', date_added:new Date().toISOString().split('T')[0]
+        });
       });
 
-      addDebugLog('✅ Cleaned '+cleaned.length+' leads (Default: Open)','success'); if(skipped>0) addDebugLog('⚠️ Skipped '+skipped,'warning');
-      addLeadsToDatabase(cleaned); renderTable(allLeads); updateMetrics(); updateAssignedPeopleSection(); currentFilteredLeads=[...allLeads]; showMessage('✅ Imported '+cleaned.length+' leads','success'); clearImport();
+      addDebugLog('✅ Cleaned '+cleaned.length+' leads (Default Lead Status: Open)','success');
+      if(skipped>0) addDebugLog('⚠️ Skipped '+skipped,'warning');
+      addLeadsToDatabase(cleaned); renderTable(allLeads); updateMetrics(); updateAssignedPeopleSection();
+      currentFilteredLeads=[...allLeads]; showMessage('✅ Imported '+cleaned.length+' leads','success'); clearImport();
     }
 
     /* ========= Local DB ========= */
     function addLeadsToDatabase(leads){ leads.forEach((l,idx)=>{ const id='LEAD-'+String(allLeads.length+idx+1).padStart(4,'0'); allLeads.push({...l,lead_id:id}); }); saveData(); }
     function loadData(){ try{ const stored=localStorage.getItem(STORAGE_KEY); allLeads=stored?JSON.parse(stored):[]; registeredPhones=new Set(allLeads.map(x=>x.phone_number)); addDebugLog('📂 Loaded '+allLeads.length+' leads','success'); }catch(e){ allLeads=[]; } }
-    function saveData(){ try{ localStorage.setItem(STORAGE_KEY,JSON.stringify(allLeads)); }catch(e){ addDebugLog('Save error','error'); } }
+    function saveData(){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(allLeads)); }catch(e){ addDebugLog('Save error','error'); } }
 
-    /* ========= UI: table & filters ========= */
+    /* ========= Firestore ========= */
+    async function syncToFirestore(){
+      if(!fbInitialized || !db){ showMessage('Connect Firebase first','error'); return; }
+      if(!allLeads.length){ showMessage('No leads to sync','error'); return; }
+      try{
+        addDebugLog('⏳ Syncing...','info');
+        const batch = db.batch();
+        const ref   = db.collection('leads');
+        allLeads.forEach(l=>{
+          const docRef = ref.doc(l.lead_id);
+          batch.set(docRef, {
+            ...l,
+            created_at: firebase.firestore.FieldValue.serverTimestamp(),
+            sync_time: new Date().toISOString()
+          }, { merge:true });
+        });
+        await batch.commit();
+        addDebugLog('✅ Synced '+allLeads.length+' leads','success');
+        showMessage('✅ Synced to Firestore!','success');
+      }catch(err){ addDebugLog('❌ '+err.message,'error'); showMessage('Sync error: '+err.message,'error'); }
+    }
+
+    async function pullFromFirestore(){
+      if(!fbInitialized || !db){ showMessage('Connect Firebase first','error'); return; }
+      try{
+        addDebugLog('⏳ Pulling from Firestore...','info');
+        const snap = await db.collection('leads').get();
+        const pulled=[];
+        snap.forEach(doc=>{
+          const d = doc.data();
+          pulled.push({
+            lead_id:d.lead_id||doc.id,
+            full_name:d.full_name||'', phone_number:d.phone_number||'', email:d.email||'',
+            lead_source:d.lead_source||'', product:d.product||'', products_list:d.products_list||[],
+            city:d.city||'', segment:d.segment||'Maharashtra',
+            hod:d.hod||'', assign_to:d.assign_to||'',
+            category:d.category||'', lead_status:d.lead_status||'Open',
+            campaign_enabled:d.campaign_enabled||'No',
+            remarks:d.remarks||'',
+            date_added:d.date_added||new Date().toISOString().split('T')[0]
+          });
+        });
+        allLeads = pulled.sort((a,b)=>(a.lead_id||'').localeCompare(b.lead_id||''));
+        registeredPhones=new Set(allLeads.map(x=>x.phone_number));
+        saveData(); applyFilters(); updateMetrics(); updateAssignedPeopleSection();
+        addDebugLog('✅ Pulled '+allLeads.length+' leads','success'); showMessage('✅ Pulled from Firestore','success');
+      }catch(err){ addDebugLog('❌ '+err.message,'error'); showMessage('Pull error: '+err.message,'error'); }
+    }
+
+    function toggleLiveSync(){
+      const btn=document.getElementById('liveBtn');
+      if(!fbInitialized || !db){ showMessage('Connect Firebase first','error'); return; }
+      if(liveUnsubscribe){ liveUnsubscribe(); liveUnsubscribe=null; btn.textContent='🔔 Live: Off'; btn.classList.remove('btn-primary'); btn.classList.add('btn-secondary'); addDebugLog('🔕 Live sync stopped','info'); return; }
+      liveUnsubscribe = db.collection('leads').onSnapshot(snap=>{
+        const rows=[];
+        snap.forEach(doc=>{
+          const d=doc.data();
+          rows.push({
+            lead_id:d.lead_id||doc.id,
+            full_name:d.full_name||'', phone_number:d.phone_number||'', email:d.email||'',
+            lead_source:d.lead_source||'', product:d.product||'', products_list:d.products_list||[],
+            city:d.city||'', segment:d.segment||'Maharashtra',
+            hod:d.hod||'', assign_to:d.assign_to||'',
+            category:d.category||'', lead_status:d.lead_status||'Open',
+            campaign_enabled:d.campaign_enabled||'No',
+            remarks:d.remarks||'',
+            date_added:d.date_added||new Date().toISOString().split('T')[0]
+          });
+        });
+        allLeads = rows.sort((a,b)=>(a.lead_id||'').localeCompare(b.lead_id||''));
+        registeredPhones=new Set(allLeads.map(x=>x.phone_number));
+        saveData(); applyFilters(); updateMetrics(); updateAssignedPeopleSection();
+        addDebugLog('🔔 Live update applied ('+allLeads.length+')','success');
+      }, err=> addDebugLog('❌ Live error: '+err.message,'error'));
+      btn.textContent='🔔 Live: On'; btn.classList.remove('btn-secondary'); btn.classList.add('btn-primary');
+      addDebugLog('🔔 Live sync started','info');
+    }
+
+    /* ========= UI: Table & Filters ========= */
     function renderTable(leads){
       const tb=document.getElementById('tableBody');
       if(!leads.length){ tb.innerHTML='<tr><td colspan="15"><div class="empty-state">📁 No leads</div></td></tr>'; return; }
       tb.innerHTML = leads.map(l=>`
         <tr>
-          <td title="${l.lead_id||''}"><div class="cell"><strong>${l.lead_id}</strong></div></td>
-          <td title="${(l.full_name||'').replace(/"/g,'&quot;')}"><div class="cell">${l.full_name||''}</div></td>
-          <td title="${l.phone_number||''}"><div class="cell cell--phone">${l.phone_number||''}</div></td>
-          <td title="${(l.email||'').replace(/"/g,'&quot;')}"><div class="cell cell--email">${l.email||'-'}</div></td>
-          <td title="${(l.lead_source||'').replace(/"/g,'&quot;')}"><div class="cell">${l.lead_source||'-'}</div></td>
-          <td title="${((l.products_list||[]).join(' | ')).replace(/"/g,'&quot;')}"><div class="cell">${(l.products_list||[]).join(' | ')||'-'}</div></td>
-          <td title="${(l.city||'').replace(/"/g,'&quot;')}"><div class="cell">${l.city||''}</div></td>
-          <td title="${(l.segment||'').replace(/"/g,'&quot;')}"><div class="cell"><span class="badge">${l.segment||''}</span></div></td>
-
+          <td><strong>${l.lead_id}</strong></td>
+          <td>${l.full_name}</td>
+          <td><span style="font-family:monospace;font-size:10px;">${l.phone_number}</span></td>
+          <td>${l.email || '-'}</td>
+          <td>${l.lead_source || '-'}</td>
+          <td>${(l.products_list||[]).join(' | ')||'-'}</td>
+          <td>${l.city || ''}</td>
+          <td><span class="badge">${l.segment||''}</span></td>
           <td>
-            <div class="cell">
-              <select onchange="updateField('${l.lead_id}','hod',this.value)" style="font-size:10px;">
-                ${HODS.map(h=>`<option value="${h}" ${l.hod===h?'selected':''}>${h}</option>`).join('')}
-              </select>
-            </div>
+            <select onchange="updateField('${l.lead_id}','hod',this.value)" style="font-size:10px;">
+              ${HODS.map(h=>`<option value="${h}" ${l.hod===h?'selected':''}>${h}</option>`).join('')}
+            </select>
           </td>
-
-          <td title="${(l.assign_to||'').replace(/"/g,'&quot;')}">
-            <div class="cell">
-              <input value="${(l.assign_to||'').replace(/"/g,'&quot;')}" placeholder="Sales person name"
-                     style="font-size:11px;background:#020617;border:1px solid #374151;color:#fff;border-radius:4px;padding:4px;"
-                     onchange="updateField('${l.lead_id}','assign_to',this.value)"/>
-            </div>
-          </td>
-
           <td>
-            <div class="cell">
-              <select onchange="updateField('${l.lead_id}','category',this.value)" style="font-size:10px;">
-                <option value="">-- Select Category --</option>
-                ${CATEGORY_OPTIONS.map(c=>`<option value="${c.value}" ${l.category===c.value?'selected':''}>${c.icon} ${c.value}</option>`).join('')}
-              </select>
-            </div>
+            <input value="${(l.assign_to||'').replace(/"/g,'&quot;')}" placeholder="Sales person name"
+                   style="width:150px;font-size:11px;background:#020617;border:1px solid #374151;color:#fff;border-radius:4px;padding:4px;"
+                   onchange="updateField('${l.lead_id}','assign_to',this.value)" />
           </td>
-
           <td>
-            <div class="cell">
-              <select onchange="updateLeadStatus('${l.lead_id}',this.value)" style="font-size:10px;">
-                ${LEAD_STATUS_OPTIONS.map(s=>`<option value="${s.value}" ${l.lead_status===s.value?'selected':''}>${s.icon} ${s.value}</option>`).join('')}
-              </select>
-            </div>
+            <select onchange="updateField('${l.lead_id}','category',this.value)" style="font-size:10px;">
+              <option value="">-- Select Category --</option>
+              ${CATEGORY_OPTIONS.map(c=>`<option value="${c}" ${l.category===c?'selected':''}>${c}</option>`).join('')}
+            </select>
           </td>
-
           <td>
-            <div class="cell">
-              <select onchange="updateField('${l.lead_id}','campaign_enabled',this.value)" style="font-size:10px;">
-                <option value="No" ${l.campaign_enabled==='No'?'selected':''}>No</option>
-                <option value="Yes" ${l.campaign_enabled==='Yes'?'selected':''}>Yes</option>
-              </select>
-            </div>
+            <select onchange="updateLeadStatus('${l.lead_id}',this.value)" style="font-size:10px;">
+              ${LEAD_STATUS_OPTIONS.map(s=>`<option value="${s}" ${l.lead_status===s?'selected':''}>${s}</option>`).join('')}
+            </select>
           </td>
-
-          <td title="${(l.remarks||'').replace(/"/g,'&quot;')}"><div class="cell cell--remarks">${l.remarks||''}</div></td>
-          <td><div class="cell"><button class="btn-danger" onclick="deleteLead('${l.lead_id}')">🗑️</button></div></td>
+          <td>
+            <select onchange="updateField('${l.lead_id}','campaign_enabled',this.value)" style="font-size:10px;">
+              <option value="No" ${l.campaign_enabled==='No'?'selected':''}>No</option>
+              <option value="Yes" ${l.campaign_enabled==='Yes'?'selected':''}>Yes</option>
+            </select>
+          </td>
+          <td>
+            <input value="${(l.remarks||'').replace(/"/g,'&quot;')}" placeholder="Remarks"
+                   style="width:160px;font-size:11px;background:#020617;border:1px solid #374151;color:#fff;border-radius:4px;padding:4px;"
+                   onchange="updateField('${l.lead_id}','remarks',this.value)"/>
+          </td>
+          <td><button class="btn-danger" onclick="deleteLead('${l.lead_id}')">🗑️</button></td>
         </tr>
       `).join('');
     }
 
-    function updateLeadStatus(leadId,newStatus){
-      const l=allLeads.find(x=>x.lead_id===leadId); if(!l) return;
-      l.lead_status=newStatus;
-      const route=LEAD_STATUS_ROUTING[newStatus];
-      if(route){ l.hod=route.hod; if(!l.assign_to || /^sales team/i.test(l.assign_to)) l.assign_to=route.assign_to; }
+    function updateLeadStatus(leadId, newStatus){
+      const l = allLeads.find(x=>x.lead_id===leadId);
+      if(!l) return;
+      l.lead_status = newStatus;
+      // Auto-route HOD & Assign To only if Assign To is blank or a default "Sales team *"
+      const route = LEAD_STATUS_ROUTING[newStatus];
+      if(route){
+        l.hod = route.hod;
+        if(!l.assign_to || /^sales team/i.test(l.assign_to)) l.assign_to = route.assign_to;
+      }
       saveData(); applyFilters(); updateMetrics(); updateAssignedPeopleSection();
       addDebugLog('Updated '+leadId+' → lead_status','success');
-      if(fbInitialized&&db){ db.collection('leads').doc(leadId).set({...l,sync_time:new Date().toISOString()},{merge:true}).catch(err=>addDebugLog('❌ Firestore update error: '+err.message,'error')); }
+      if(fbInitialized && db){
+        db.collection('leads').doc(leadId).set({...l, sync_time:new Date().toISOString()},{merge:true})
+          .catch(err=>addDebugLog('❌ Firestore update error: '+err.message,'error'));
+      }
     }
 
-    function updateField(leadId,field,val){
-      const l=allLeads.find(x=>x.lead_id===leadId); if(!l) return;
-      l[field]=val; saveData(); applyFilters(); updateMetrics(); updateAssignedPeopleSection(); addDebugLog('Updated '+leadId+' → '+field,'success');
-      if(fbInitialized&&db){ db.collection('leads').doc(leadId).set({...l,sync_time:new Date().toISOString()},{merge:true}).catch(err=>addDebugLog('❌ Firestore update error: '+err.message,'error')); }
+    function updateField(leadId, field, val){
+      const l = allLeads.find(x=>x.lead_id===leadId); if(!l) return;
+      l[field]=val; saveData(); applyFilters(); updateMetrics(); updateAssignedPeopleSection();
+      addDebugLog('Updated '+leadId+' → '+field,'success');
+      if(fbInitialized && db){
+        db.collection('leads').doc(leadId).set({...l, sync_time:new Date().toISOString()},{merge:true})
+          .catch(err=>addDebugLog('❌ Firestore update error: '+err.message,'error'));
+      }
     }
 
     function deleteLead(leadId){
       if(!confirm('Delete?')) return;
-      allLeads=allLeads.filter(x=>x.lead_id!==leadId); saveData(); applyFilters(); updateMetrics(); updateAssignedPeopleSection(); addDebugLog('🗑️ Deleted '+leadId,'success');
-      if(fbInitialized&&db){ db.collection('leads').doc(leadId).delete().catch(err=>addDebugLog('❌ Firestore delete error: '+err.message,'error')); }
+      allLeads = allLeads.filter(x=>x.lead_id!==leadId);
+      saveData(); applyFilters(); updateMetrics(); updateAssignedPeopleSection();
+      addDebugLog('🗑️ Deleted '+leadId,'success');
+      if(fbInitialized && db){
+        db.collection('leads').doc(leadId).delete().catch(err=>addDebugLog('❌ Firestore delete error: '+err.message,'error'));
+      }
     }
 
     function applyFilters(){
-      const name=(document.getElementById('searchName').value||'').toLowerCase();
-      const seg=document.getElementById('filterSegment').value;
-      const hod=document.getElementById('filterHOD').value;
-      const ls=document.getElementById('filterLeadStatus').value;
-      const sales=(document.getElementById('filterAssignSales').value||'').toLowerCase();
-      const filtered=allLeads.filter(l=>
+      const name = (document.getElementById('searchName').value||'').toLowerCase();
+      const seg  = document.getElementById('filterSegment').value;
+      const hod  = document.getElementById('filterHOD').value;
+      const ls   = document.getElementById('filterLeadStatus').value;
+      const sales= (document.getElementById('filterAssignSales').value||'').toLowerCase();
+
+      const filtered = allLeads.filter(l =>
         (name==='' || (l.full_name||'').toLowerCase().includes(name)) &&
         (seg===''  || l.segment===seg) &&
         (hod===''  || l.hod===hod) &&
@@ -617,41 +802,74 @@
     }
 
     function updateMetrics(){
-      document.getElementById('kpiTotal').textContent=allLeads.length;
-      document.getElementById('kpiAssigned').textContent=allLeads.length;
-      document.getElementById('kpiConverted').textContent=allLeads.filter(l=>l.lead_status==='Converted').length;
-      document.getElementById('kpiCampaign').textContent=allLeads.filter(l=>l.campaign_enabled==='Yes').length;
-      document.getElementById('sidebarTotalLeads').textContent=allLeads.length;
+      document.getElementById('kpiTotal').textContent = allLeads.length;
+      document.getElementById('kpiAssigned').textContent = allLeads.length;
+      document.getElementById('kpiConverted').textContent = allLeads.filter(l=>l.lead_status==='Converted').length;
+      document.getElementById('kpiCampaign').textContent = allLeads.filter(l=>l.campaign_enabled==='Yes').length;
+      document.getElementById('sidebarTotalLeads').textContent = allLeads.length;
     }
+
     function updateAssignedPeopleSection(){
-      const cont=document.getElementById('assignedPeopleContainer'); const stats={}; HODS.forEach(h=>stats[h]={count:0,converted:0});
+      const cont=document.getElementById('assignedPeopleContainer');
+      const stats={}; HODS.forEach(h=>stats[h]={count:0,converted:0});
       allLeads.forEach(l=>{ if(l.hod&&stats[l.hod]){ stats[l.hod].count++; if(l.lead_status==='Converted') stats[l.hod].converted++; }});
-      let html=''; HODS.forEach(h=>{ if(stats[h].count>0){ html+=`<div class="assigned-person"><div class="assigned-person-name">👤 ${h}</div><div class="assigned-stats"><div class="stat-item"><span>Leads:</span><span>${stats[h].count}</span></div><div class="stat-item"><span>Converted:</span><span>${stats[h].converted}</span></div></div></div>`; }});
+      let html=''; HODS.forEach(h=>{ if(stats[h].count>0){ html+=`
+        <div class="assigned-person">
+          <div class="assigned-person-name">👤 ${h}</div>
+          <div class="assigned-stats">
+            <div class="stat-item"><span>Leads:</span><span>${stats[h].count}</span></div>
+            <div class="stat-item"><span>Converted:</span><span>${stats[h].converted}</span></div>
+          </div>
+        </div>`; }});
       cont.innerHTML = html || '<div style="font-size:11px;color:#9ca3af;text-align:center;">No assignments</div>';
     }
 
     function exportCurrentView(){
-      const data=(currentFilteredLeads&&currentFilteredLeads.length)?currentFilteredLeads:allLeads;
+      const data = (currentFilteredLeads && currentFilteredLeads.length) ? currentFilteredLeads : allLeads;
       if(!data.length){ showMessage('No data to export','error'); return; }
-      const headers=['lead_id','full_name','phone_number','email','lead_source','products_list','city','segment','hod','assign_to','category','lead_status','campaign_enabled','remarks','date_added'];
+      const headers = [
+        'lead_id','full_name','phone_number','email','lead_source','products_list',
+        'city','segment','hod','assign_to','category','lead_status','campaign_enabled','remarks','date_added'
+      ];
       const csv=[headers.join(',')];
       data.forEach(l=>{
-        const row=[ l.lead_id||'', esc(l.full_name), esc(l.phone_number), esc(l.email), esc(l.lead_source), esc((l.products_list||[]).join(' | ')), esc(l.city), esc(l.segment), esc(l.hod), esc(l.assign_to), esc(l.category), esc(l.lead_status), esc(l.campaign_enabled), esc(l.remarks), esc(l.date_added) ];
+        const row=[
+          l.lead_id||'',
+          escapeCSV(l.full_name||''),
+          escapeCSV(l.phone_number||''),
+          escapeCSV(l.email||''),
+          escapeCSV(l.lead_source||''),
+          escapeCSV((l.products_list||[]).join(' | ')),
+          escapeCSV(l.city||''),
+          escapeCSV(l.segment||''),
+          escapeCSV(l.hod||''),
+          escapeCSV(l.assign_to||''),
+          escapeCSV(l.category||''),
+          escapeCSV(l.lead_status||''),
+          escapeCSV(l.campaign_enabled||''),
+          escapeCSV(l.remarks||''),
+          escapeCSV(l.date_added||'')
+        ];
         csv.push(row.join(','));
       });
-      const blob=new Blob([csv.join('\n')],{type:'text/csv;charset=utf-8;'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); const ts=new Date().toISOString().slice(0,19).replace(/[:T]/g,'-'); a.href=url; a.download='cdlm_export_revised_'+ts+'.csv'; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url); addDebugLog('⬇ Exported '+data.length+' rows','success'); showMessage('Exported '+data.length+' rows!','success');
+      const blob=new Blob([csv.join('\n')],{type:'text/csv;charset=utf-8;'});
+      const url=URL.createObjectURL(blob); const a=document.createElement('a');
+      const ts=new Date().toISOString().slice(0,19).replace(/[:T]/g,'-');
+      a.href=url; a.download='cdlm_export_revised_'+ts+'.csv'; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+      addDebugLog('⬇ Exported '+data.length+' rows','success'); showMessage('Exported '+data.length+' rows!','success');
     }
-    const esc=v=>{v=String(v||''); return /[",\n]/.test(v)?('"'+v.replace(/"/g,'""')+'"'):v;}
+    function escapeCSV(v){ v=String(v||''); if(/[",\n]/.test(v)) return '"'+v.replace(/"/g,'""')+'"'; return v; }
 
     /* ========= Utilities ========= */
-    function addDebugLog(msg,type='info'){const box=document.getElementById('debugLog'); const div=document.createElement('div'); div.className='log-entry '+type; const t=new Date().toLocaleTimeString(); div.textContent='['+t+'] '+msg; box.appendChild(div); box.scrollTop=box.scrollHeight;}
-    function showMessage(text,type){const c=document.getElementById('messageContainer'); const div=document.createElement('div'); div.className='message message-'+(type==='error'?'error':'success')+' show'; div.textContent=text; c.appendChild(div); setTimeout(()=>div.remove(),4500); }
+    function addDebugLog(msg,type='info'){ const box=document.getElementById('debugLog'); const div=document.createElement('div'); div.className='log-entry '+type; const t=new Date().toLocaleTimeString(); div.textContent='['+t+'] '+msg; box.appendChild(div); box.scrollTop=box.scrollHeight; }
+    function showMessage(text,type){ const c=document.getElementById('messageContainer'); const div=document.createElement('div'); div.className='message message-'+(type==='error'?'error':'success')+' show'; div.textContent=text; c.appendChild(div); setTimeout(()=>div.remove(),5000); }
     function toggleSidebar(){ document.querySelector('.sidebar').classList.toggle('open'); }
 
     /* ========= Startup ========= */
     document.addEventListener('DOMContentLoaded', ()=>{
-      try{ /* Optional: auto connect on load */ /* initFirebase(); */ }catch(e){}
-      const savedUser=localStorage.getItem('cdlm_current_user'); if(savedUser){ currentUser=JSON.parse(savedUser); showDashboard(); }
+      try{ initFirebase(); }catch(e){}
+      const savedUser=localStorage.getItem('cdlm_current_user');
+      if(savedUser){ currentUser=JSON.parse(savedUser); showDashboard(); }
     });
   </script>
 </body>
